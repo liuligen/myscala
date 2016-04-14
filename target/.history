@@ -1,0 +1,9 @@
+np name:myscala
+scala HelloWorld.scala
+help
+completions
+hh
+help
+show
+plugins
+help play

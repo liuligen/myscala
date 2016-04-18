@@ -14,6 +14,9 @@ object HelloWorld {
 
   def welcome(name:String) = {"Hello " + name}
 
-  def appay() {}
+  def appay() {
+    System.out.println("commit1")
+  }
+
 
 }

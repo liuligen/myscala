@@ -17,6 +17,10 @@ object HelloWorld {
   def appay() {
     System.out.println("commit1")
     System.out.println("commit2")
+<<<<<<< Updated upstream
+=======
+    System.out.println("commit2")
+>>>>>>> Stashed changes
   }
 
 

@@ -19,6 +19,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="SBT: org.scala-lang:scala-library:2.10.4:jar" level="project" />
+    <orderEntry type="module" module-name="myscala-build" />
+    <orderEntry type="library" name="scala-sdk-2.11.8" level="project" />
   </component>
 </module>

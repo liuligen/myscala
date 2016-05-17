@@ -4,7 +4,7 @@
 		module="myscala_2.10"
 		revision="0.1.0-SNAPSHOT"
 		status="integration"
-		publication="20160410172713"
+		publication="20160517123754"
 	>
 		<description>
 		myscala
@@ -27,10 +27,13 @@
 	</configurations>
 	<publications>
 		<artifact name="myscala_2.10" type="pom" ext="pom" conf="pom"/>
-		<artifact name="myscala_2.10" type="jar" ext="jar" conf="optional" e:classifier="download"/>
+		<artifact name="myscala_2.10" type="jar" ext="jar" conf="compile"/>
+		<artifact name="myscala_2.10" type="src" ext="jar" conf="sources" e:classifier="sources"/>
+		<artifact name="myscala_2.10" type="doc" ext="jar" conf="docs" e:classifier="javadoc"/>
 	</publications>
 	<dependencies>
-		<dependency org="org.scala-lang" name="scala-compiler" rev="2.10.4" conf="scala-tool->default,optional(default)"/>
-		<dependency org="org.scala-lang" name="scala-library" rev="2.10.4" conf="scala-tool->default,optional(default);compile->default(compile)"/>
+		<dependency org="org.scala-lang" name="scala-compiler" rev="2.10.6" conf="scala-tool->default,optional(default)"/>
+		<dependency org="org.scala-lang" name="scala-library" rev="2.10.6" conf="scala-tool->default,optional(default);compile->default(compile)"/>
+		<dependency org="com.typesafe.akka" name="akka-actor_2.10" rev="2.2.5" conf="compile->default(compile)"/>
 	</dependencies>
 </ivy-module>

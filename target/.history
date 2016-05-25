@@ -7,3 +7,35 @@ help
 show
 plugins
 help play
+run
+run DownloadFileFromURL
+run DownloadFileFromURL("hello")
+run DownloadFileFromURL
+run Array("1","2") "2016-05-17"
+run DownloadFileFromURL Array("1","2") "2016-05-17"
+run ["1","2"] 
+run ["1","2"]
+run DownloadFileFromURL ["3","2"]
+run 1,2,3
+run Array("3","2")
+var a = new Array("1")
+project myscala
+run "sss"
+run "sss","ddd"
+run "sss ddd"
+run ["sss ddd"]
+run ["sss","ddd"]
+run List("sss","ddd")
+run ("sss","ddd")
+run ["sss" "ddd"]
+run "a dd g"
+run "sss" "ddd"
+run "sss" "ddd","dfd"
+run "sss" "ddd"
+run test "ss"
+plugins
+run DownloadFileFromURL /Users/twer/workspaces/scala/myscala/stockCode.txt 2016-05-13 /Users/twer/workspaces/scala/myscala/download/
+run /Users/twer/workspaces/scala/myscala/stockCode.txt 2016-05-13 /Users/twer/workspaces/scala/myscala/download/
+run /Users/twer/workspaces/scala/myscala/stockCode.txt 2016-05-18 /Users/twer/workspaces/scala/myscala/download/
+run /Users/twer/workspaces/scala/myscala/stockCode.txt 2016-05-13 /Users/twer/workspaces/scala/myscala/download/
+run

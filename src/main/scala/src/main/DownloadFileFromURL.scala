@@ -1,18 +1,74 @@
 package src.main
 
-import sys.process._
-import java.net.URL
 import java.io.File
-import akka.actor.{Actor, ActorSystem, Props, ReceiveTimeout}
+import java.net.URL
+
+import akka.actor.{Actor, ActorRef, ActorSystem, Props}
+import akka.routing.{RoundRobinRoutingLogic, Router, ActorRefRoutee, RoundRobinRouter}
+
+import scala.io.Source
+import scala.sys.process._
 
 
-final case class GetCode(code: String)
+final case class GetCode(code: String, path: String)
 
-class DownloadFileFromURL(fileName:String) extends Actor {
+case class Msg_Req(date: String, code: String, path: String)
+
+case class Msg_Resp(index: String)
+
+case class Msg_Start(list: List[String], date: String, path: String)
+
+case class Msg_Finished()
+
+
+class DownloadFileFromURL(listener: ActorRef) extends Actor {
+
+  var result: List[Int] = Nil
+  var numWorkers = 0
+  var count = 0
+
+  var router = {
+    val routees = Vector.fill(5) {
+      val r = context.actorOf(Props[Worker])
+      context watch r
+      ActorRefRoutee(r)
+    }
+    Router(RoundRobinRoutingLogic(), routees)
+  }
 
   def receive = {
-    case GetCode(code: String) => fileDownloader("http://market.finance.sina.com.cn/downxls.php?date="+fileName+"&symbol="+code, "download/20160513/"+code+"-"+fileName+".xls")
-    case ReceiveTimeout        => throw new RuntimeException("received timeout")
+
+    case w: Worker =>
+      router.route(w, sender())
+
+    case Msg_Start(list, date, path) =>
+      numWorkers = list.size
+      val workerRouter = context.actorOf(
+        Props[Worker].withRouter(RoundRobinRouter(40)))
+      list.par.map(x =>
+//        context.actorOf(
+//          Props[Worker].withRouter(RoundRobinRouter(1)), "Worker-Router" + x) ! Msg_Req(date, x, path)
+          workerRouter ! Msg_Req(date, x, path)
+      )
+
+    case Msg_Resp(index) =>
+      print(".")
+      count = count + 1
+      if (count >= numWorkers) {
+        listener ! Msg_Finished()
+        context.stop(self)
+        println("Finish!")
+      }
+  }
+}
+
+class Worker extends Actor {
+  def receive = {
+    case Msg_Req(date: String, code: String, path: String) =>
+      println(Thread.currentThread().getId())
+
+      fileDownloader("http://market.finance.sina.com.cn/downxls.php?date=" + date + "&symbol=" + code, path + date + "/" + code + "_交易明细_" + date + ".xls")
+      sender ! Msg_Resp(code)
   }
 
   def fileDownloader(url: String, filename: String) = {
@@ -20,24 +76,37 @@ class DownloadFileFromURL(fileName:String) extends Actor {
   }
 }
 
-object DownloadFileFromURL extends App {
+class Listener extends Actor {
+  def receive = {
+    case Msg_Finished() =>
+      context.system.shutdown
+  }
+}
 
-  val system = ActorSystem()
+object DownloadFileFromURL {
+  val system = ActorSystem("DownloadStockFile")
 
-//  CodeData.getCodes.map(invoke(_))
-  def invoke(code : String): Unit ={
-    val actor = system.actorOf(Props(new DownloadFileFromURL("2016-05-13")))
-    actor ! GetCode(code)
+  def main(args: Array[String]) = {
+    if (args.size < 3)
+      throw new IllegalArgumentException("parameters's size not enough");
+
+    var filePath = args.apply(0)
+    var date = args.apply(1)
+    var downloadPath = args.apply(2)
+    var codeList: List[String] = Source.fromFile(filePath).getLines.toList
+
+    var downloadDirectoryName: String = downloadPath + date
+    var dir: File = new File(downloadDirectoryName)
+    if (!dir.exists())
+      dir.mkdir()
+
+    val listener = system.actorOf(Props[Listener], "listener")
+    downloadStockData(listener, codeList.slice(0,30), date, downloadPath)
   }
 
-  CodeData.getCodes.par.map(invoke(_))
-  CodeData.getCodes2.par.map(invoke(_))
-  CodeData.getCodes3.par.map(invoke(_))
-  CodeData.getCodes4.par.map(invoke(_))
-  CodeData.getCodes5.par.map(invoke(_))
-
-
-//  system.shutdown
-
+  def downloadStockData(listener:ActorRef, stockCodes: List[String], dateString: String, downloadPath: String): Unit = {
+    val actor = system.actorOf(Props(new DownloadFileFromURL(listener)))
+    actor ! Msg_Start(stockCodes, dateString, downloadPath)
+  }
 
 }

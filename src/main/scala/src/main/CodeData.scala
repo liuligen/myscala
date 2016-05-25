@@ -597,11 +597,8 @@ object CodeData {
     "sh600700",
     "sh600701",
     "sh600702",
-    "sh600703"
+    "sh600703",
 
-    )
-
-  var codes2 = List[String]("sz300043",
     "sz300044",
     "sz300045",
     "sz300046",
@@ -1153,9 +1150,7 @@ object CodeData {
     "sh600785",
     "sh600786",
     "sh600787",
-    "sh600788")
-
-  var codes3 = List[String]("sh600789",
+    "sh600788","sh600789",
     "sh600790",
     "sh600791",
     "sh600792",
@@ -1754,8 +1749,7 @@ object CodeData {
     "sz000420",
     "sz000421",
     "sz000422",
-    "sz000423")
-  var codes4 = List[String]("sz000425",
+    "sz000423","sz000425",
     "sz000426",
     "sz000428",
     "sz000429",
@@ -2415,8 +2409,7 @@ object CodeData {
     "sz002252",
     "sz002253",
     "sz002254",
-    "sz002255")
-  var codes5 = List[String]("sz002256",
+    "sz002255","sz002256",
     "sz002257",
     "sz002258",
     "sz002259",
@@ -3059,17 +3052,5 @@ object CodeData {
     codes
   }
 
-  def getCodes2():List[String] = {
-    codes2
-  }
-  def getCodes3():List[String] = {
-    codes3
-  }
-  def getCodes4():List[String] = {
-    codes4
-  }
-  def getCodes5():List[String] = {
-    codes5
-  }
 
 }

@@ -1,10 +1,10 @@
 package src.main
 
-import java.io.File
-import java.net.URL
+import java.io.{IOException, File}
+import java.net.{UnknownHostException, URL}
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
-import akka.routing.{RoundRobinRoutingLogic, Router, ActorRefRoutee, RoundRobinRouter}
+import akka.routing.RoundRobinRouter
 
 import scala.io.Source
 import scala.sys.process._
@@ -27,19 +27,19 @@ class DownloadFileFromURL(listener: ActorRef) extends Actor {
   var numWorkers = 0
   var count = 0
 
-  var router = {
-    val routees = Vector.fill(5) {
-      val r = context.actorOf(Props[Worker])
-      context watch r
-      ActorRefRoutee(r)
-    }
-    Router(RoundRobinRoutingLogic(), routees)
-  }
+//  var router = {
+//    val routees = Vector.fill(5) {
+//      val r = context.actorOf(Props[Worker])
+//      context watch r
+//      ActorRefRoutee(r)
+//    }
+//    Router(RoundRobinRoutingLogic(), routees)
+//  }
 
   def receive = {
 
-    case w: Worker =>
-      router.route(w, sender())
+//    case w: Worker =>
+//      router.route(w, sender())
 
     case Msg_Start(list, date, path) =>
       numWorkers = list.size
@@ -51,8 +51,9 @@ class DownloadFileFromURL(listener: ActorRef) extends Actor {
           workerRouter ! Msg_Req(date, x, path)
       )
 
-    case Msg_Resp(index) =>
+    case Msg_Resp(stockCode) =>
       print(".")
+      if (!stockCode.isEmpty) println(stockCode + ": can't download")
       count = count + 1
       if (count >= numWorkers) {
         listener ! Msg_Finished()
@@ -67,12 +68,19 @@ class Worker extends Actor {
     case Msg_Req(date: String, code: String, path: String) =>
       println(Thread.currentThread().getId())
 
-      fileDownloader("http://market.finance.sina.com.cn/downxls.php?date=" + date + "&symbol=" + code, path + date + "/" + code + "_交易明细_" + date + ".xls")
-      sender ! Msg_Resp(code)
+      val result = fileDownloader("http://market.finance.sina.com.cn/downxls.php?date=" + date + "&symbol=" + code, path + date + "/" + code + "_交易明细_" + date + ".xls")
+
+      sender ! Msg_Resp(if (result.isEmpty) "" else code)
   }
 
-  def fileDownloader(url: String, filename: String) = {
-    new URL(url) #> new File(filename) !!
+  def fileDownloader(url: String, filename: String) : String = {
+    try{
+      new URL(url) #> new File(filename) !!
+    }catch {
+      case e: RuntimeException => "error"
+      case e: UnknownHostException => "error"
+      case e: IOException => "error"
+    }
   }
 }
 
@@ -85,7 +93,6 @@ class Listener extends Actor {
 
 object DownloadFileFromURL {
   val system = ActorSystem("DownloadStockFile")
-
   def main(args: Array[String]) = {
     if (args.size < 3)
       throw new IllegalArgumentException("parameters's size not enough");

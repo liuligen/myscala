@@ -1,0 +1,55 @@
+package com.hw.util;
+
+import sun.misc.BASE64Decoder;
+
+import java.io.IOException;
+import java.security.*;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+/**
+ * Created by ligen on 17/1/11.
+ */
+public class GenerateSecurityKey {
+
+    private static final String KEY_ALGORITHM = "RSA";
+
+    public static String generateUUID(){
+        UUID uuid = UUID.randomUUID();
+        System.out.println(uuid.toString().replaceAll("-",""));
+        return uuid.toString().replaceAll("-","");
+    }
+
+    public static void generatePrivateKey() throws Exception {
+        String uuid = generateUUID();
+
+        try {
+            byte[] buffer = new BASE64Decoder().decodeBuffer(uuid);
+            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(buffer);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+            keyFactory.generatePrivate(keySpec);
+        } catch (NoSuchAlgorithmException e) {
+            throw new Exception("无此算法");
+        } catch (InvalidKeySpecException e) {
+            throw new Exception("私钥非法");
+        } catch (NullPointerException e) {
+            throw new Exception("私钥数据为空");
+        }
+    }
+
+    public static void main(String[] args) {
+//        generateUUID();
+        try {
+            generatePrivateKey();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
